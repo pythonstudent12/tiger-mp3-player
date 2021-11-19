@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+  
+   <head>
+    <script src="https://unpkg.com/konva@8.2.3/konva.min.js"></script>
+    <meta charset="utf-8" />
+    <title>Konva Select Shape by id Demo</title>
+ <style>
+	
+
+
+@keyframes color-me-in {
+  50% {
+    background: #64e4ed;
+  }
+  50% {
+    background: #025721;
+  }
+  50% {
+    background: #01232e;
+  }
+  50% {
+    background: #64e4ed;
+  }
+}
+
+div audio {
+  display: block;
+  margin-bottom:10px;
+  margin-left:10px;
+}
+
+#myCanvas {
+width: 45%;
+height: 25% !important;
+  
+  margin-left:auto;
+  margin-right:auto;
+  
+}
+.main {
+  margin: 30px;
+  border:1px solid #014347;
+  border-radius:15px;
+  background: linear-gradient(to top, #8d1b07, #f70303);
+  padding:10px;
+  width:90%;
+  
+  box-shadow: 5px 5px 5px grey;
+  text-align:center;
+  font-family: "Open Sans";
+  font-size: 12px;
+}
+
+div.controls:hover {
+  color:blue;
+  font-weight:bold;
+}
+   
+div.controls label {
+  display: inline-block;
+  text-align: center;
+  width: 10%;
+}
+
+div.controls label, div.controls input, output {
+    vertical-align: middle;
+    padding: 0;
+    margin: 0;
+   font-family: "Open Sans",Verdana,Geneva,sans-serif,sans-serif;
+  font-size: 12px;
+}
+
+#container {
+        background: rgb(204, 197, 197) no-repeat 1px 0px;
+   
+      }
+
+</style>
+</head>
+<body>
+  <div id="container"></div>
+  <h2>2D аудио визуализация: частоты</h2>
+   <h3>Трек</h3>
+
+<div class="main">
+  <audio src="track.mp3" id="player" controls loop  crossorigin="anonymous" type="audio/mp3"></audio>
+  <canvas id="myCanvas" width=340 height=300></canvas>
+</div>
+
+<script>
+
+      var width = window.innerWidth;
+      var height = window.innerHeight;
+
+//тут возникает сбой
+
+      //var stage = new Konva.Stage({
+    //    container: 'container',
+    //    width: width,
+     //   height: height,
+   //   });
+
+   //   var layer = new Konva.Layer();
+    //  for (var n = 0; n < 10; n++) {
+     //   var circle = new Konva.Circle({
+    //      x: Math.random() * stage.width(),
+      //    y: Math.random() * stage.height(),
+      //    radius: Math.random() * 50 + 25,
+      //    fill: 'red',
+      //    strokeWidth: 3,
+        //  stroke: 'black',
+      // });
+
+     //   layer.add(circle);
+     // }
+
+//построить эквалайзер с несколькими фильтрами
+var audioCtx = window.AudioContext || window.webkitAudioContext;
+
+var canvas;
+var audioContext, canvasContext;
+var analyser;
+var width, height;
+
+var dataArray, bufferLength;
+
+window.onload = function() {
+  audioContext= new audioCtx();
+  
+  canvas = document.querySelector("#myCanvas");
+  width = canvas.width;
+  height = canvas.height;
+  canvasContext = canvas.getContext('2d');
+
+
+
+
+  // добавление картинки на канвас
+
+ // let img = new Image();
+// Назначение путь до картинки
+//img.src = "tiger.jpg";
+//canvasContext.drawImage(img, 0, 0,400, 400);
+
+}
+ 
+// Отслеживание события загрузки страницы
+window.addEventListener('load', function() {
+    // Вывод картинки
+    //canvasContext.drawImage(img, 0, 0, 1400, 1400);
+
+  
+  buildAudioGraph();
+  
+  requestAnimationFrame(visualize);
+});
+
+function buildAudioGraph() {
+  var mediaElement = document.getElementById('player');
+      mediaElement.onplay = (e) => {audioContext.resume();}
+
+  // исправлено для политики автозапуска
+  mediaElement.addEventListener('play',() => audioContext.resume());
+
+  var sourceNode =   audioContext.createMediaElementSource(mediaElement);
+  
+  // Создать узел анализатора
+  analyser = audioContext.createAnalyser();
+  
+  // Попробуйте изменить на более низкие значения: 512, 256, 128, 64 ...
+  analyser.fftSize = 256;
+  bufferLength = analyser.frequencyBinCount;
+  dataArray = new Uint8Array(bufferLength);
+  
+  sourceNode.connect(analyser);
+  analyser.connect(audioContext.destination);
+}
+
+function visualize() {
+  // очистить canvas
+  canvasContext.clearRect(0, 0, width, height);
+  //canvasContext.drawImage(img, 0, 0, 1400, 1400);
+  
+  // Или используйте заливку RGBA, чтобы получить небольшой эффект размытия
+  //canvasContext.fillStyle = 'rgba (0, 0, 0, 0.5)';
+  //canvasContext.fillRect(0, 0, width, height);
+  
+  let img = new Image();
+// Назначение путь до картинки
+  img.src = "tiger.jpg";
+
+  function clipper(ctx,img, x,y,w,h,rad){
+  ctx.beginPath();
+  ctx.arc(x+rad, y+rad, rad, Math.PI, Math.PI+Math.PI/2 , false);
+  ctx.lineTo(x+w - rad, y);
+  ctx.arc(x+w-rad, y+rad, rad, Math.PI+Math.PI/2, Math.PI*2 , false);
+  ctx.lineTo(x+w,y+h - rad);
+  ctx.arc(x+w-rad,y+h-rad,rad,Math.PI*2,Math.PI/2,false);
+  ctx.lineTo(x+rad,y+h);
+  ctx.arc(x+rad,y+h-rad,rad,Math.PI/2,Math.PI,false);
+  ctx.closePath();
+  ctx.save();
+  ctx.clip();
+  ctx.drawImage(img,x,y,w,h);
+  ctx.restore();
+}
+
+  //canvasContext.drawImage(img, 0, 0, 340, 300);
+  clipper(canvasContext,img,0,0,340,300,20);
+  
+  // Получить данные анализатора
+  analyser.getByteFrequencyData(dataArray);
+
+      var barWidth = width / bufferLength;
+      var barHeight;
+      var x = 0;
+
+  //    for (let i = 0; i < 9; i++) {
+  //var rect2 = new Konva.Rect({
+ //   x: 880 + i * 30,
+ //   y: 290-5*i,
+  //  width: 10,
+  //  height: 50+5*i,
+   // fill: 'red',
+   // shadowBlur: 5,
+   // ornerRadius: 5,
+   // pacity: 1
+  //});
+//layer3.add(rect2);
+//}
+   
+      // значения изменяются от 0 до 256, а высота холста равна 100. Давайте изменим масштаб
+      // перед отрисовкой. Это масштабный коэффициент
+      heightScale = height/428;
+  
+      for(var i = 0; i < bufferLength-110; i++) {
+        barHeight = dataArray[i];
+        canvasContext.fillStyle = 'rgb(' + (barHeight+0) + ',25 ,25)';
+        barHeight *= heightScale;
+        canvasContext.fillRect(100+x, 180-barHeight/2, barWidth, barHeight/2);
+        // 2 - количество пикселей между столбцами
+        x += barWidth + 5;
+      }
+  
+  // вызовите снова функцию визуализации со скоростью 60 кадров / с
+  requestAnimationFrame(visualize);
+  //tiger for git
+}
+
+</script>
+</body>
+</html>

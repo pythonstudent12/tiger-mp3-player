@@ -1,0 +1,162 @@
+<script src="https://unpkg.com/konva@8.0.4/konva.min.js"></script>
+    <meta charset="utf-8" />
+    <title>Konva Interactive Building Map Demo</title>
+    <style>
+      body {
+        background-image: url('..\img\tiger.jpg');
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #f0f0f0;
+      }
+      #container {
+        background: rgb(204, 197, 197) no-repeat 1px 0px;
+   
+      }
+      #save {
+        position: absolute;
+        top: 625px;
+        left: 390px;
+      }
+      input {
+        display: none;
+      }
+
+    
+input {
+  display: none;
+}
+
+
+button {
+  width: 150px;
+  height: 50px;
+  border: 5px solid black;
+  border-radius: 25px;
+  background: none;
+  top: 75%;
+  left: calc(15% - 75px);
+  color: black;
+  letter-spacing: 2px;
+  position: relative;
+}
+  
+      
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      
+  
+    </div>
+    <input type="file">
+    <button  id="save" onclick="select()">Select an MP3</button>
+    
+    <script>
+
+      var width = window.innerWidth;
+      var height = window.innerHeight;
+
+      var stage = new Konva.Stage({
+        container: 'container',
+        width: width,
+        height: height,
+      });
+
+      var layer = new Konva.Layer();
+      var layer3 = new Konva.Layer();
+
+      //var imageObj = new Image();
+    //  imageObj.src = 'img/tiger.jpg'
+
+   // var image = new Konva.Image({
+   // x: 120,
+  //  y: 80,
+  //  image: imageObj,
+  //  width: 700,
+  //  height: 600
+ // });
+
+ // layer.add(image);
+
+stage.add(layer);
+stage.add(layer3);
+
+// тут прорисованы стрелы!
+//for (let i = 0; i < 9; i++) {
+ // var arrow2 = new Konva.Arrow({
+   //     x: 590+i*60,
+    //    y: 80,
+      //  points: [380, 320, 380, 120],
+      //  pointerLength: 30,
+      //  pointerWidth: 30,
+      //  fill: 'red',
+      //  stroke: 'red',
+      //  strokeWidth: 14,
+      //});
+
+    //  layer.add(arrow2);
+//}
+    
+var arrow = new Konva.Arrow({
+        x: stage.width() / 4,
+        y: stage.height() / 4,
+        points: [0, 0, width / 2, height / 2],
+        pointerLength: 90,
+        pointerWidth: 60,
+        fill: 'red',
+        stroke: 'blue',
+        strokeWidth: 5,
+      });
+
+      // add the shape to the layer
+      layer.add(arrow);
+
+var line = new Konva.Line({
+  points: [73, 70, 340, 23, 450, 60, 500, 20],
+  stroke: 'red',
+  tension: 5,
+  pointerLength : 20,
+  pointerWidth : 24
+ // opacity: 0.5
+});
+layer.add(line);
+
+//статические полосы, полосы идут вверх, как надо!!
+
+for (let i = 0; i < 9; i++) {
+  var rect2 = new Konva.Rect({
+    x: 880 + i * 30,
+    y: 290-5*i,
+    width: 10,
+    height: 50+5*i,
+    fill: 'red',
+    shadowBlur: 5,
+    ornerRadius: 5,
+    pacity: 1
+  });
+layer3.add(rect2);
+}
+
+
+// тут замена цвета с красного на желтый!!
+
+var shapes = layer3.getChildren();
+for (var n = 0; n < shapes.length; n++) {
+  var shape = shapes[n];
+  var f = shape.fill();
+  shape.fill(f == 'red' ? 'yellow' : 'red');
+}
+
+
+            
+var text = new Konva.Text({
+  x: 55,
+  y: 70,
+  text: 'Тигр',
+  fontSize: '30',
+  fontFamily: 'Calibri',
+  fill: 'red',
+});
+
+layer.add(text);
